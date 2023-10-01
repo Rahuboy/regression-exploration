@@ -1,0 +1,106 @@
+% LaTeX Template for short student reports.
+% Citations should be in bibtex format and go in references.bib
+\documentclass[a4paper, 11pt]{article}
+\usepackage[top=3cm, bottom=3cm, left = 2cm, right = 2cm]{geometry} 
+\geometry{a4paper} 
+\usepackage[utf8]{inputenc}
+\usepackage{textcomp}
+\usepackage{graphicx} 
+\usepackage{amsmath,amssymb}  
+\usepackage{bm}  
+\usepackage[pdftex,bookmarks,colorlinks,breaklinks]{hyperref}  
+%\hypersetup{linkcolor=black,citecolor=black,filecolor=black,urlcolor=black} % black links, for printed output
+\usepackage{memhfixc} 
+\usepackage{pdfsync}  
+\usepackage{fancyhdr}
+\usepackage{enumitem}
+\pagestyle{fancy}
+
+\title{Weighted Least Squares}
+\author{
+  Rahul Ramachandran\\
+  \texttt{cs21btech11049}
+  \and
+  Rishit D\\
+  \texttt{cs21btech11053}
+}
+%\date{}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\section{Solution}
+\subsection{Likelihood and Prior}
+In a homoscedastic setting, the likelihood is given by:
+$$p(t_n|x_n, \textbf{w}) \sim \mathcal{N}(t_n|\textbf{w}^T \phi(x_n), \beta^{-1})$$
+We arrive at this by assuming that the noise is Gaussian and independent of the input:
+$$t_n = y(x_n, \textbf{w}) + \epsilon$$
+In a heteroscedastic setting, we instead assume that the noise depends on the input. In particular, 
+we will assume that the standard deviation of the noise is given by $\frac{\sigma^2}{r_n}$, where $\sigma^2 = \frac{1}{\beta}$.
+Therefore, the likelihood is given by:
+$$p(t_n|x_n, \textbf{w}) \sim \mathcal{N}(t_n|\textbf{w}^T \phi(x_n), (\beta r_n)^{-1})$$
+The prior is given by \textbf{(check this)}:
+$$p(\textbf{w}|\alpha) \sim \mathcal{N}(\textbf{w}|\textbf{0}, \alpha^{-1}\textbf{I})$$
+
+
+\subsection{ML and MAP Estimation}
+The likelihood is given by:
+$$p(\textbf{t}|\textbf{w}, \beta) = \prod_{n=1}^{N} \mathcal{N}(t_n|\textbf{w}^T \phi(x_n), (\beta r_n)^{-1})$$
+Here, we assume that the $t_i$s are independent. 
+The above expression simplifies to:
+    \begin{align} 
+        p(\textbf{t}|\textbf{w}, \beta) &= \prod_{n=1}^{N} \mathcal{N}(t_n|\textbf{w}^T \phi(x_n), (\beta r_n)^{-1}) \label{eq:1} \\
+        &= \prod_{n=1}^{N} \frac{1}{\sqrt{2\pi (\beta r_n)^{-1}}} \exp\left(-\frac{1}{2}(\beta r_n)(t_n - \textbf{w}^T \phi(x_n))^2\right) \label{eq:2}
+    \end{align}
+For the MAP estimate, we consider:
+$$ p(\textbf{w}|\textbf{x}, \textbf{t}, \alpha, \beta) \propto p(\textbf{t}|\textbf{w}, \beta) p(\textbf{w}|\alpha)$$
+Therefore, we have:
+    \begin{align*}
+        p(\textbf{w}|\textbf{x}, \textbf{t}, \alpha, \beta) &\propto p(\textbf{t}|\textbf{w}, \beta) p(\textbf{w}|\alpha) \\
+        &= \left(\prod_{n=1}^{N} \frac{1}{\sqrt{2\pi (\beta r_n)^{-1}}} \exp\left(-\frac{1}{2}(\beta r_n)(t_n - \textbf{w}^T \phi(x_n))^2\right)\right) \left(\frac{\alpha}{2\pi}\right)^{(M+1)/2} \exp\left(-\frac{\alpha}{2} \textbf{w}^T \textbf{w}\right) \\
+    \end{align*}
+\subsection{Error Function and Solution}
+To maximise the likelihood, we take log on both sides of \ref{eq:2}:
+    \begin{align*}
+        \log p(\textbf{t}|\textbf{w}, \beta) &= \sum_{n=1}^{N} \log \frac{1}{\sqrt{2\pi (\beta r_n)^{-1}}} \exp\left(-\frac{1}{2}(\beta r_n)(t_n - \textbf{w}^T \phi(x_n))^2\right) \\
+        &= \sum_{n=1}^{N} \left(\log \frac{1}{\sqrt{2\pi (\beta r_n)^{-1}}} + \log \exp\left(-\frac{1}{2}(\beta r_n)(t_n - \textbf{w}^T \phi(x_n))^2\right)\right) \\
+        &= \sum_{n=1}^{N} \left(\log \frac{1}{\sqrt{2\pi (\beta r_n)^{-1}}} - \frac{1}{2}(\beta r_n)(t_n - \textbf{w}^T \phi(x_n))^2\right) \\
+        &= - \frac{\beta}{2}\sum_{n=1}^{N}r_n(t_n - \textbf{w}^T \phi(x_n))^2 + \sum_{n=1}^{N} \log \frac{1}{\sqrt{2\pi (\beta r_n)^{-1}}} \\
+        &= - \beta E_D(\textbf{w}) + \sum_{n=1}^{N} \log \frac{1}{\sqrt{2\pi (\beta r_n)^{-1}}} 
+    \end{align*}
+Therefore, we have to minimise the error function:
+$$E_D(\textbf{w}) = \frac{1}{2}\sum_{n=1}^{N}r_n(t_n - \textbf{w}^T \phi(x_n))^2$$
+To do this, we rewrite $E_D$ as $(T-\Phi\textbf{w})^T R (T-\Phi\textbf{w})$, where:
+%  $T$ is the vector of $t_n$s, $\Phi$ is the design matrix and $R$ is the diagonal matrix with $r_n$s on the diagonal. We then differentiate $E_D$ with respect to $\textbf{w}$ and set it to zero:
+$$\mathbf{\Phi}=\left(\begin{array}{cccc}
+    \phi_0\left(\mathbf{x}_1\right) & \phi_1\left(\mathbf{x}_1\right) & \cdots & \phi_{M-1}\left(\mathbf{x}_1\right) \\
+    \phi_0\left(\mathbf{x}_2\right) & \phi_1\left(\mathbf{x}_2\right) & \cdots & \phi_{M-1}\left(\mathbf{x}_2\right) \\
+    \vdots & \vdots & \ddots & \vdots \\
+    \phi_0\left(\mathbf{x}_N\right) & \phi_1\left(\mathbf{x}_N\right) & \cdots & \phi_{M-1}\left(\mathbf{x}_N\right)
+    \end{array}\right)
+    \mathbf{t}=\left(\begin{array}{c}
+    t_1 \\
+    t_2 \\
+    \vdots \\
+    t_N
+    \end{array}\right)
+    \mathbf{R}=\left(\begin{array}{cccc}
+    r_1 & 0 & \cdots & 0 \\
+    0 & r_2 & \cdots & 0 \\
+    \vdots & \vdots & \ddots & \vdots \\
+    0 & 0 & \cdots & r_N
+    \end{array}\right)
+$$
+Therefore, we have:
+    \begin{align*}
+        \frac{\partial E_D}{\partial \textbf{w}} &= \frac{\partial}{\partial \textbf{w}} (T-\Phi\textbf{w})^T R (T-\Phi\textbf{w}) \\
+        &= -2(T-\Phi\textbf{w})^TR\Phi \\
+        &= 0 \\
+        \implies \Phi^T R (T-\Phi\textbf{w}) &= 0 \\
+        \implies \Phi^T R T &= \Phi^T R \Phi \textbf{w} \\
+        \implies \textbf{w} &= (\Phi^T R \Phi)^{-1} \Phi^T R T
+    \end{align*}
+\bibliographystyle{abbrv}
+% \bibliography{references}  % need to put bibtex references in references.bib 
+\end{document}
