@@ -1,0 +1,144 @@
+% LaTeX Template for short student reports.
+% Citations should be in bibtex format and go in references.bib
+\documentclass[a4paper, 11pt]{article}
+\usepackage[top=3cm, bottom=3cm, left = 2cm, right = 2cm]{geometry} 
+\geometry{a4paper} 
+\usepackage[utf8]{inputenc}
+\usepackage{textcomp}
+\usepackage{graphicx} 
+\usepackage{amsmath,amssymb}  
+\usepackage{bm}  
+\usepackage[pdftex,bookmarks,colorlinks,breaklinks]{hyperref}  
+%\hypersetup{linkcolor=black,citecolor=black,filecolor=black,urlcolor=black} % black links, for printed output
+\usepackage{memhfixc} 
+\usepackage{pdfsync}  
+\usepackage{fancyhdr}
+\usepackage{enumitem}
+\pagestyle{fancy}
+
+\title{Logistic Regression and Newton-Raphson}
+\author{
+  Rahul Ramachandran\\
+  \texttt{cs21btech11049}
+  \and
+  Rishit D\\
+  \texttt{cs21btech11053}
+}
+%\date{}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\section{Gradient, Hessian and Newton-Raphson}
+\subsection{Error Function}
+The error function is given by:
+$$E(\textbf{w}) = -\sum_{n=1}^N\left(t_n\ln(y_n) + (1-t_n)\ln(1-y_n)\right)$$
+This can alternatively be written as:
+$$E(y_1, y_2, \ldots, y_N) = -\sum_{n=1}^N\left(t_n\ln(y_n) + (1-t_n)\ln(1-y_n)\right)$$
+to show the dependance on $y_i$s.
+To derive the gradient and the hessian, we will use the \href{https://en.wikipedia.org/wiki/Matrix_calculus#Layout_conventions}{numerator layout}.
+Note that the design matrix $\Phi$ is given by:
+$$\mathbf{\Phi}=\left(\begin{array}{cccc}
+    \phi_0\left(\mathbf{x}_1\right) & \phi_1\left(\mathbf{x}_1\right) & \cdots & \phi_{M-1}\left(\mathbf{x}_1\right) \\
+    \phi_0\left(\mathbf{x}_2\right) & \phi_1\left(\mathbf{x}_2\right) & \cdots & \phi_{M-1}\left(\mathbf{x}_2\right) \\
+    \vdots & \vdots & \ddots & \vdots \\
+    \phi_0\left(\mathbf{x}_N\right) & \phi_1\left(\mathbf{x}_N\right) & \cdots & \phi_{M-1}\left(\mathbf{x}_N\right)
+    \end{array}\right)
+$$
+We represent the $i$th row of $\Phi$ as $\phi_i$.
+
+\subsection{Gradient}
+We find the gradient of $E$ with respect to $\textbf{w}$ by using the total-derivative chain rule:
+\begin{align}
+\nabla_{\textbf{w}} E = \sum_{n=1}^N \frac{\partial E}{\partial y_n} \frac{\partial y_n}{\partial \textbf{w}} \label{eq:1}
+\end{align}
+First, we find $\frac{\partial E}{\partial y_n}$:
+\begin{align}
+    \frac{\partial E}{\partial y_n} &= -\left(\frac{t_n}{y_n} - \frac{1-t_n}{1-y_n}\right) \\
+    &= \frac{y_n - t_n}{y_n(1-y_n)} \label{eq:3}
+\end{align}
+To find $\frac{\partial y_n}{\partial \textbf{w}}$, we note the following:
+\begin{align}
+    a_n &= \textbf{w}^T \phi_n \\
+    y_n &= \sigma(a_n) 
+\end{align}
+where $\sigma$ is the sigmoid function. Therefore, we have:
+\begin{align}
+    \frac{\partial y_n}{\partial \textbf{w}} &= \frac{\partial y_n}{\partial a_n} \frac{\partial a_n}{\partial \textbf{w}} \\
+    &= y_n(1-y_n) \phi_n^T \label{eq:7}
+\end{align}
+where we've used the fact that $\frac{\partial \sigma(x)}{\partial x} = \sigma(x)(1-\sigma(x))$. Combining \eqref{eq:3} and \eqref{eq:7}, we get:
+\begin{align}
+    \frac{\partial E}{\partial y_n} \frac{\partial y_n}{\partial \textbf{w}} &= (y_n - t_n) \phi_n^T \label{eq:9}
+\end{align}
+Using \eqref{eq:9} in \eqref{eq:1}, we get:
+\begin{align}
+    \nabla_{\textbf{w}} E &= \sum_{n=1}^N (y_n - t_n) \phi_n^T \\
+    &= (\textbf{y} - \textbf{t})^T \Phi\label{eq:11}
+\end{align}
+
+\subsection{Hessian}
+From the last section, we obtained the gradient of $E$ with respect to $\textbf{w}$ as:
+$$\nabla_{\textbf{w}} E = \sum_{n=1}^N (y_n - t_n) \phi_n^T$$
+The Hessian is given by the transpose of the Jacobian of the gradient:
+\begin{align}
+    \nabla_{\textbf{w}}^T \nabla_{\textbf{w}} E &= \nabla_{\textbf{w}}^T \left(\sum_{n=1}^N (y_n - t_n) \phi_n^T\right) \\
+    &= \sum_{n=1}^N \nabla_{\textbf{w}}^T (y_n - t_n) \phi_n^T \\
+    &= \sum_{n=1}^N (\nabla_{\textbf{w}} (y_n - t_n) \phi_n^T)^T 
+\end{align}
+Now, we find $\nabla_{\textbf{w}} (y_n - t_n) \phi_n^T$:
+\begin{align}
+    \left(\frac{\partial (y_n - t_n) \phi_n^T}{\partial \textbf{w}} \right)_{i} &= \frac{\partial (y_n - t_n) \phi_{i-1}(x_n)}{\partial \textbf{w}} \\
+    &= \frac{\partial (y_n - t_n)}{\partial \textbf{w}} \phi_{i-1}(x_n) \\
+    &= \frac{\partial y_n}{\partial \textbf{w}} \phi_{i-1}(x_n) \\
+    &= y_n(1-y_n) \phi_{i-1}(x_n) \phi_n^T
+\end{align}
+Therefore, we have:
+$$ \nabla_{\textbf{w}} (y_n - t_n) \phi_n^T = y_n(1-y_n) \phi_n \phi_n^T$$
+Using this in the expression for the Hessian, we get:
+\begin{align}
+    \nabla_{\textbf{w}}^T \nabla_{\textbf{w}} E &= \sum_{n=1}^N (y_n(1-y_n) \phi_n \phi_n^T)^T \\
+    &= \sum_{n=1}^N y_n(1-y_n) \phi_n \phi_n^T \\
+    &= \Phi^T R \Phi \label{eq:19}
+\end{align}
+where $R$ is the diagonal matrix with $y_n(1-y_n)$ on the diagonal.
+
+\subsection{Newton-Raphson}
+The Newton-Raphson update is given by:
+$$\textbf{w}^{new} = \textbf{w}^{old} - (H)^{-1} \nabla_{\textbf{w}}^T E$$
+where $H$ is the Hessian. Using \eqref{eq:11} and \eqref{eq:19}, we get the following update equation:
+\begin{align}
+    \textbf{w}^{new} &= \textbf{w}^{old} - (\Phi^T R \Phi)^{-1} \Phi^T  (\textbf{y} - \textbf{t}) 
+\end{align}
+
+\textbf{Write the algorithm here @Rishit}. We should also probably clarify that our gradient is transposed because of the numerator layout convention
+
+\section{Relation to Weighted Least Squares}
+The update equation for the Newton-Raphson method can be rewritten as:
+\begin{align}
+    \textbf{w}^{new} &= \textbf{w}^{old} - (\Phi^T R \Phi)^{-1} \Phi^T  (\textbf{y} - \textbf{t})  \\
+    &= (\Phi^T R \Phi)^{-1} (\Phi^T R \Phi)\textbf{w}^{old}  - (\Phi^T R \Phi)^{-1} \Phi^T  (\textbf{y} - \textbf{t}) \\
+    &= (\Phi^T R \Phi)^{-1} (\Phi^T R \Phi \textbf{w}^{old} - \Phi^T  (\textbf{y} - \textbf{t}) ) \\
+    &= (\Phi^T R \Phi)^{-1} (\Phi^T R (\Phi \textbf{w}^{old} -  R^{-1}(\textbf{y} - \textbf{t}) )) \\
+    &= (\Phi^T R \Phi)^{-1} \Phi^T R \textbf{z}\\
+\end{align}
+where $\textbf{z} = \Phi \textbf{w}^{old} -  R^{-1}(\textbf{y} - \textbf{t}) \in \mathbf{R}^N$. This matches the form of the solution we obtained for weighted least squares. Here, the matrix $R$ is not constant, and depends on 
+the changing vector $\textbf{w}$. Because of this, and since the update equation is iteratively applied, the Newton-Raphson method is also called \textit{Iterative Reweighted Least Squares Method}.
+
+
+\section{Convexity}
+To show that the error function is convex, we will show that the Hessian is positive semi-definite, i.e., $\forall \textbf{v} \in \mathbf{R}^M, \textbf{v}^T H \textbf{v} \geq 0$.
+Let $\textbf{v} \in \mathbf{R}^M$. Therefore:
+\begin{align}
+    \textbf{v}^T H \textbf{v} &= \textbf{v}^T \Phi^T R \Phi \textbf{v} \\
+    &= (\Phi \textbf{v})^T R (\Phi \textbf{v}) \\
+    &= u^T R u
+\end{align}
+where $u = \Phi \textbf{v}$. Further note that the diagonal elements of $R$ are $y_n(1-y_n) > 0$, since $y_n$ is a sigmoid function. Therefore, 
+\begin{align}
+    u^T R u &= \sum_{n=1}^N u_n^2 y_n(1-y_n) \\
+    &\geq 0
+\end{align}
+showing that $H$ is positive semi-definite and that $E$ is a convex function of $\textbf{w}$.
+% \bibliography{references}  % need to put bibtex references in references.bib 
+\end{document}
