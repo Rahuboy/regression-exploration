@@ -1,0 +1,84 @@
+% LaTeX Template for short student reports.
+% Citations should be in bibtex format and go in references.bib
+\documentclass[a4paper, 11pt]{article}
+\usepackage[top=3cm, bottom=3cm, left = 2cm, right = 2cm]{geometry} 
+\geometry{a4paper} 
+\usepackage[utf8]{inputenc}
+\usepackage{textcomp}
+\usepackage{graphicx} 
+\usepackage{amsmath,amssymb}  
+\usepackage{bm}  
+\usepackage[pdftex,bookmarks,colorlinks,breaklinks]{hyperref}  
+%\hypersetup{linkcolor=black,citecolor=black,filecolor=black,urlcolor=black} % black links, for printed output
+\usepackage{memhfixc} 
+\usepackage{pdfsync}  
+\usepackage{fancyhdr}
+\usepackage{enumitem}
+\pagestyle{fancy}
+
+\title{Ordinal Regression}
+\author{
+  Rahul Ramachandran\\
+  \texttt{cs21btech11049}
+  \and
+  Rishit D\\
+  \texttt{cs21btech11053}
+}
+%\date{}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\section{Ordinal Regression: Summary}
+Ordinal random variables are based on classfifcation random variables but with a stochastic ordering. For instance, support for various political parties is considered a classfication problem whereas support for various parts of the political spectrum is an ordinal regression problem.
+Consider $k$ categories which are the qualitative representation of the ordering. We would want to determine the probabilities of landing in various categories based on a set of independent features.
+\newline
+Assume the independent variables to be represented through $\textbf{x}$ with the probability of being in category $i$ as $\pi_i(\textbf{x})$. Now define cumulative probabilities $\gamma_i(\textbf{x})$ as follows: \newline
+\begin{align}
+    \gamma_i(\textbf{x}) = \sum_{a=1}^{i} \pi_a(\textbf{x})
+\end{align}
+
+Our ordinal regression model is based on the General Linearized Model, represented as follows:
+\begin{align}
+    g(\gamma_i(\textbf{x})) = \theta_i - \beta^T\textbf{x} 
+\end{align}
+
+where $\theta_i$ represents the cut-point for category $i$, $\beta$ represents a vector of unknown parameters, $\textbf{x}$ represents the vector of independent features and $g(x)$ is the link function for the GLM.
+Note that link functions are monotone and map $(0, 1)$ to $(-\infty, \infty)$. \newline
+
+Intuitively, we note that our set of cut-point $\{\theta_i\}$ must be monotone. One can note that we obtain a set of parallel hyperplanes that separate out different categories when we consider our link function as the identity function.
+But based on the nature of the dataset given to us (in specific, the possible distribution from which the outcome $Y$ may be generated), we choose different link functions and obtain parameters. One may also note that we only have a single set of unknown paramaters $\beta$ common to all categories, thus geneereating the set of parallel hyperplanes. \newline
+
+Now consider two input vectors \textbf{$x_1$} and \textbf{$x_2$}. Then we have,
+\begin{align}
+    g(\gamma_i(\textbf{$x_1$})) - g(\gamma_i(\textbf{$x_2$})) = \beta^T(\textbf{$x_2$} - \textbf{$x_1$})
+\end{align}
+We observe that the right hand side is completely independent of the category. Hence, by monotonicity of the link function $g$, we have that either of the following two equations to hold.
+\begin{align}
+    \gamma_i(\textbf{$x_1$}) > \gamma_i(\textbf{$x_2$}) \\
+    \gamma_i(\textbf{$x_1$}) < \gamma_i(\textbf{$x_2$})
+\end{align}
+for all categories $i$.
+
+\subsection{Proportional Odds Model}
+Assume that odds of $\textbf{x}$ belonging to a category $i$ such that $i < j$ is modelled as:
+\begin{align} 
+    T_j(\textbf{x}) = C_j e^{-\beta^T\textbf{x}}
+\end{align}
+
+This model is termed the proportional odds model as the ratio of odds of $i < j$ when input vectors are \textbf{$x_1$} and \textbf{$x_2$} is independent of the category.
+\begin{align}
+    \frac{T_j(\textbf{$x_1$})}{T_j(\textbf{$x_2$})} = e^{\beta^T(\textbf{$x_2$} - \textbf{$x_1$})}
+\end{align}
+
+We observe that applying $log$ on either side of the proportional odds model equation yields our linear 
+
+\section{Key Differences With Multiclass Classification}
+
+\section{Likelihood \& Parameter Estimation}
+
+
+\bibliographystyle{abbrv}
+% \bibliography{references}  % need to put bibtex references in references.bib 
+\end{document}
