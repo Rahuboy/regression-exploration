@@ -14,6 +14,8 @@
 \usepackage{pdfsync}  
 \usepackage{fancyhdr}
 \usepackage{enumitem}
+\usepackage{indentfirst}
+\usepackage{dsfont}
 \pagestyle{fancy}
 
 \title{Ordinal Regression}
@@ -31,6 +33,48 @@
 \tableofcontents
 
 \section{Ordinal Regression: Summary}
+% Ordinal random variables are based on classfifcation random variables but with a stochastic ordering. For instance, support for various political parties is considered a classfication problem whereas support for various parts of the political spectrum is an ordinal regression problem.
+% Consider $k$ categories which are the qualitative representation of the ordering. We would want to determine the probabilities of landing in various categories based on a set of independent features.
+% \newline
+% Assume the independent variables to be represented through $\textbf{x}$ with the probability of being in category $i$ as $\pi_i(\textbf{x})$. Now define cumulative probabilities $\gamma_i(\textbf{x})$ as follows: \newline
+% \begin{align}
+%     \gamma_i(\textbf{x}) = \sum_{a=1}^{i} \pi_a(\textbf{x})
+% \end{align}
+
+% Our ordinal regression model is based on the General Linearized Model, represented as follows:
+% \begin{align}
+%     g(\gamma_i(\textbf{x})) = \theta_i - \beta^T\textbf{x} 
+% \end{align}
+
+% where $\theta_i$ represents the cut-point for category $i$, $\beta$ represents a vector of unknown parameters, $\textbf{x}$ represents the vector of independent features and $g(x)$ is the link function for the GLM.
+% Note that link functions are monotone and map $(0, 1)$ to $(-\infty, \infty)$. \newline
+
+% Intuitively, we note that our set of cut-point $\{\theta_i\}$ must be monotone. One can note that we obtain a set of parallel hyperplanes that separate out different categories when we consider our link function as the identity function.
+% But based on the nature of the dataset given to us (in specific, the possible distribution from which the outcome $Y$ may be generated), we choose different link functions and obtain parameters. One may also note that we only have a single set of unknown paramaters $\beta$ common to all categories, thus geneereating the set of parallel hyperplanes. \newline
+
+% Now consider two input vectors \textbf{$x_1$} and \textbf{$x_2$}. Then we have,
+% \begin{align}
+%     g(\gamma_i(\textbf{$x_1$})) - g(\gamma_i(\textbf{$x_2$})) = \beta^T(\textbf{$x_2$} - \textbf{$x_1$})
+% \end{align}
+% We observe that the right hand side is completely independent of the category. Hence, by monotonicity of the link function $g$, we have that either of the following two equations to hold.
+% \begin{align}
+%     \gamma_i(\textbf{$x_1$}) > \gamma_i(\textbf{$x_2$}) \\
+%     \gamma_i(\textbf{$x_1$}) < \gamma_i(\textbf{$x_2$})
+% \end{align}
+% for all categories $i$.
+
+% \subsection{Proportional Odds Model}
+% Assume that odds of $\textbf{x}$ belonging to a category $i$ such that $i < j$ is modelled as:
+% \begin{align} 
+%     T_j(\textbf{x}) = C_j e^{-\beta^T\textbf{x}}
+% \end{align}
+
+% This model is termed the proportional odds model as the ratio of odds of $i < j$ when input vectors are \textbf{$x_1$} and \textbf{$x_2$} is independent of the category.
+% \begin{align}
+%     \frac{T_j(\textbf{$x_1$})}{T_j(\textbf{$x_2$})} = e^{\beta^T(\textbf{$x_2$} - \textbf{$x_1$})}
+% \end{align}
+
+% We observe that applying $log$ on either side of the proportional odds model equation yields our linear
 Ordinal random variables are based on classfifcation random variables but with a stochastic ordering. For instance, support for various political parties is considered a classfication problem whereas support for various parts of the political spectrum is an ordinal regression problem.
 Consider $k$ categories which are the qualitative representation of the ordering. We would want to determine the probabilities of landing in various categories based on a set of independent features.
 \newline
@@ -47,37 +91,155 @@ Our ordinal regression model is based on the General Linearized Model, represent
 where $\theta_i$ represents the cut-point for category $i$, $\beta$ represents a vector of unknown parameters, $\textbf{x}$ represents the vector of independent features and $g(x)$ is the link function for the GLM.
 Note that link functions are monotone and map $(0, 1)$ to $(-\infty, \infty)$. \newline
 
-Intuitively, we note that our set of cut-point $\{\theta_i\}$ must be monotone. One can note that we obtain a set of parallel hyperplanes that separate out different categories when we consider our link function as the identity function.
-But based on the nature of the dataset given to us (in specific, the possible distribution from which the outcome $Y$ may be generated), we choose different link functions and obtain parameters. One may also note that we only have a single set of unknown paramaters $\beta$ common to all categories, thus geneereating the set of parallel hyperplanes. \newline
-
-Now consider two input vectors \textbf{$x_1$} and \textbf{$x_2$}. Then we have,
+\subsection{Examples}
+For instance, defining the link function $g(x)$ as the logit function would give the proportional odds model as follows:
 \begin{align}
-    g(\gamma_i(\textbf{$x_1$})) - g(\gamma_i(\textbf{$x_2$})) = \beta^T(\textbf{$x_2$} - \textbf{$x_1$})
+    ln\left(\frac{\gamma_i(\textbf{x})}{1 - \gamma_i(\textbf{x})}\right) = \theta_i - \beta^T\textbf{x}
 \end{align}
-We observe that the right hand side is completely independent of the category. Hence, by monotonicity of the link function $g$, we have that either of the following two equations to hold.
+Note that the ratio of two odds for two input vectors \textbf{$x_1$} and \textbf{$x_2$} is independent of the category $i$, hence the name.
+
+Similarly, defining the link function $g(x)$ as the complementary log-log function would generate the proportional hazards model, described as follows:
 \begin{align}
-    \gamma_i(\textbf{$x_1$}) > \gamma_i(\textbf{$x_2$}) \\
-    \gamma_i(\textbf{$x_1$}) < \gamma_i(\textbf{$x_2$})
+    ln(-ln(1 - \gamma_i(\textbf{x}))) = \theta_i - \beta^T\textbf{x}
 \end{align}
-for all categories $i$.
+Here, defining the survivor function $S(t;x)$ as $1 - \gamma_i(\textbf{x})$ would ensure that the ratio of the survivor functions remains constant and is independent of the category, giving us the proportional hazard model.
 
-\subsection{Proportional Odds Model}
-Assume that odds of $\textbf{x}$ belonging to a category $i$ such that $i < j$ is modelled as:
-\begin{align} 
-    T_j(\textbf{x}) = C_j e^{-\beta^T\textbf{x}}
-\end{align}
-
-This model is termed the proportional odds model as the ratio of odds of $i < j$ when input vectors are \textbf{$x_1$} and \textbf{$x_2$} is independent of the category.
+\subsection{Differences with Multiclass Classification} 
+Consider a multinomial logistic regression problem where the probability of sample \textbf{$x$} residing in category $i$, captured by the output variable $Y$.
 \begin{align}
-    \frac{T_j(\textbf{$x_1$})}{T_j(\textbf{$x_2$})} = e^{\beta^T(\textbf{$x_2$} - \textbf{$x_1$})}
+    \pi_i(\textbf{x}) = p(Y = i|\textbf{x}) = \frac{e^{\beta_i^T\textbf{x}}}{\sum_{a=1}^{k} e^{\beta_a^T\textbf{x}}}
+\end{align}
+One may note that the $\textbf{x}= (1, x_1, ..., x_D)^T$ here also includes $1$ as its first entry and correspondingly the first term of the parameter vector $\beta = (\beta_0, \beta_1, ..., \beta_D)^T$ is the intercept term, $\beta_0$. \newline
+
+Firstly, the ordinal regression model uses cumulative probabilities $\gamma_i(\textbf{x})$ rather than the probability masses $\pi_i(x)$ used in the softmax model. \newline
+
+Secondly, we observe the linear estimators 
+\begin{align}
+    \eta_i = \beta_i^T\textbf{x}
 \end{align}
 
-We observe that applying $log$ on either side of the proportional odds model equation yields our linear 
+for each case. In the case of the softmax model, every set of parameters $\beta_i$ for category $i$ is not necessarily the same.
+But in case of the ordinal regression model, we have
+\begin{align}
+    \eta_i = \beta_{i0} + \beta_{i1}\textbf{$x_{1}$} + ... + \beta_{iD}\textbf{$x_{D}$} = \theta_i - \beta_*^T\textbf{x}
+\end{align}
+where we notice that $\beta_{i0}$ serves the role of the intercept $\theta_i$ and that $\beta_*$ remains constant over all categories $i$. Hence, we only have $D + k$ parameters as compared to $(D+1)k$ parameters in a multinomial logistic regression.
+Since our $\beta_*$ remains constant over all categories, the linear estimators $\eta_i$ form a set of parallel hyperplanes as opposed to a multinomial logistic regression where there are no such constraints placed on hyperplanes to distinguish samples. 
+Intuitively, this is logical as ordinal regression must maintain stochastic ordering. Consider two hyperplanes intersecting in an ordinal regression setting; this would imply a switch in ordering at some point \textbf{$x_0$} in the input space, violating the ordinality of categories.
+\newline
 
-\section{Key Differences With Multiclass Classification}
+\subsection{Log Likelihood and Log Odd Differences}
+In both cases, given $n$ input points $\{{$\textbf{x_i}$}\}_{1..n}$, the likelihood function would be given as:
+\begin{align}
+    \mathcal{L} &= p(Y|\beta_1, ..., \beta_k) \\
+    &= \prod_{i=1}^n \prod_{j=1}^k \pi_j({x_n})^{\mathds{1}\{j=Y_i\}}
+\end{align}
+
+Similarly, the log likelihood $l$ would be defined as:
+\begin{align}
+    l &= ln\left(\mathcal{L}\right) \\
+    &= \sum_{i=1}^n \sum_{j=1}^k \delta_{j,Y_i} ln\left(\pi_j({x_n})\right)
+\end{align}
+
+For multiclass logistic regression, $l$ takes the following form:
+\begin{align}
+    l = \sum_{i=1}^n \sum_{j=1}^k \delta_{j,Y_i} \left(\beta_jx_i - ln\left(\sum_{j=1}^k e^{\beta_j^T{x_i}}\right)\right)
+\end{align}
+
+Assuming $g(x)$ is the link function for ordinal regression models and using the fact that $\pi_j(\textbf{x}) = \gamma_j(\textbf{x}) - \gamma_{j-1}(\textbf{x})$, we get the following expression for $l$:
+\begin{align}
+    l = \sum_{i=1}^n \sum_{j=1}^k \delta_{j,Y_i} \left(ln(g^{-1}(\theta_j - \beta_*^T(x_i)) - g^{-1}(\theta_{j-1} - \beta_*^T(x_i)))\right)
+\end{align}
+
+When using proportional odds model, the above expression reduces to:
+\begin{align}
+    l = \sum_{i=1}^n \sum_{j=1}^k \delta_{j,Y_i} \left(ln\left(\frac{e^{\theta_j}}{e^{\theta_j} + e^{\beta_*^Tx_i}} - \frac{e^{\theta_{j-1}}}{e^{\theta_{j-1}} + e^{\beta_*^Tx_i}}\right)\right)
+\end{align}
+
+In case of multiclass classfication, our log-odds are defined as follows:
+\begin{align}
+    ln\left( \frac{\pi_i(\textbf{x})}{1 - \pi_i(\textbf{x})} \right) = \beta_i^T\textbf{x} - \ln\left( \sum_{j\neqi}e^{\beta_j^T\textbf{x}} \right)
+\end{align}
+
+But in the case of ordinal regression (in this case, specifically proportional odds), we define log-odds in terms of cumulative probabilities $\gamma_i(\textbf{x})$ as:
+\begin{align}
+    ln\left( \frac{\gamma_i(\textbf{x})}{1 - \gamma_i(\textbf{x})} \right) &= \ln\left( \frac{g^{-1}(\theta_j - \beta_*^Tx_i)}{1 - g^{-1}(\theta_j - \beta_*^Tx_i)}\right) \\
+    &= \theta_j - \beta_*^Tx_i
+\end{align}
+
 
 \section{Likelihood \& Parameter Estimation}
+In all of our following derivations, we consider the proportional-odds model. Consider a single input vector \textbf{x} and its associated output $Y = (n_1, n_2, ..., n_k)^T$. Define $R_i$ and $Z_i$ as following:
+\begin{align}
+    R_i &= \sum_{j=1}^i n_i \\
+    Z_i &= \frac{R_i}{N} 
+\end{align}
+where $N = \sum_{j=1}^k n_i$. \newline
 
+We interpret our partial likelihood for ordinal regression as follows (we drop the \textbf{x} for convenience):
+\begin{align}
+    \mathcal{L(\textbf{x})} &= \prod_{i=1}^k \pi_i(\textbf{x})^n_i \\
+    &= \gamma_1(\textbf{x})^{n_1} \prod_{i=2}^k (\gamma_i(\textbf{x}) - \gamma_{i-1}(\textbf{x}))^{n_i} \\
+    &= \gamma_1(\textbf{x})^{R_1} \prod_{i=2}^k (\gamma_i(\textbf{x}) - \gamma_{i-1}(\textbf{x}))^{R_i - R_{i-1}} \\
+    &= \left( \prod_{i=2}^k \frac{\gamma_{i-1}^{R_{i-1}(\textbf{x})} \times (\gamma_i(\textbf{x}) - \gamma_{i-1}^{R_i - R_{i-1}}(\textbf{x}))}{\gamma_{i}^{R_{i}}(\textbf{x})} \right) \gamma_k^{R_k}(\textbf{x})\\
+    &= \prod_{i=2}^k \frac{\gamma_{i-1}^{R_{i-1}(\textbf{x})} \times (\gamma_i(\textbf{x}) - \gamma_{i-1}^{R_i - R_{i-1}}(\textbf{x}))}{\gamma_{i}^{R_{i}}(\textbf{x})} \\
+    &= \prod_{i=2}^k \left(\frac{\gamma_{i-1}}{\gamma_i}\right)^{R_{i-1}} \left(\frac{\gamma_i - \gamma_{i-1}}{\gamma_i}\right)^{R_i - R_{i-1}} \\
+    &= \prod_{i=2}^k \left(\frac{\gamma_{i-1}}{\gamma_i - \gamma_{i-1}}\right)^{R_{i-1}} \left(\frac{\gamma_i - \gamma_{i-1}}{\gamma_i}\right)^{R_i}
+\end{align}
+
+Our partial log-likelihood would be defined as:
+\begin{align}
+    l(\textbf{x}) &= \sum_{i=2}^k R_{i-1}ln\left(\frac{\gamma_{i-1}}{\gamma_i - \gamma_{i-1}}\right) + R_iln\left(\frac{\gamma_i - \gamma_{i-1}}{\gamma_i}\right) \\
+    &= \sum_{i=2}^k R_{i-1}\phi_{i-1} - R_i f(\phi_{i-1}) \\
+    &= N \left( \sum_{i=2}^k Z_{i-1}\phi_{i-1} - Z_i f(\phi_{i-1}) \right) \\
+\end{align}
+where we define:
+\begin{align}
+    \phi_{i} &= ln\left(\frac{\gamma_{i}}{\gamma_{i+1} - \gamma_{i}}\right) \\
+    f(t) &= ln(1 + e^t)
+\end{align}
+
+Consider the gradient of $l(\textbf{x})$ with respect to $\beta_*$ which can be computed as follows:
+\begin{align}
+    \nabla_{\beta_*}l(\textbf{x}) &= N \left( \sum_{i=2}^k Z_{i-1} \nabla_{\beta_*}\phi_{i-1} - Z_i \nabla_{\beta_*}f(\phi_{i-1}) \right) \\
+    &= N \left( \sum_{i=2}^k \left( Z_{i-1} - Z_i f'(\phi_{i-1}) \right) \nabla_{\beta_*}\phi_{i-1} \right) \\
+    &= N \left( \sum_{i=2}^k \left( Z_{i-1} - Z_i \frac{\gamma_{i-1}}{\gamma_i} \right) \gamma_{i}\textbf{x} \right) \\
+    &= N \left( \sum_{i=2}^k \left( \gamma_i Z_{i-1} - \gamma_{i-1} Z_i \right) \textbf{x} \right)
+\end{align}
+
+Assume we have $P$ input points \textbf{$x_p$.} Now, our gradient of our final log-likelihood function would be:
+\begin{align}
+    \nabla_{\beta_*}l &= \sum_{p=1}^P\nabla_{\beta_*}l(\textbf{$x_p$}) \\
+    &= \sum_{p=1}^P N_p \left( \sum_{i=2}^k \left( \gamma_{p,i} Z_{p,i-1} - \gamma_{p,i-1} Z_{p,i} \right) \textbf{$x_p$} \right) \\
+    &= \sum_{i=2}^k \left( \gamma_{i} \mathds{E}(Z_{i-1}) - \gamma_{i-1} \mathds{E}(Z_i) \right) (????????)
+\end{align}
+
+\subsection{Other Derivations}
+We derive $\nabla_{\beta_*} \gamma_j$ as follows:
+\begin{align}
+    ln\left(\frac{\gamma_j}{1 - \gamma_j}\right) &= \theta_j - \beta_*^T\textbf{x} \\
+    \nabla_{\beta_*} \left( ln\left(\frac{\gamma_j}{1 - \gamma_j}\right) \right) &= \nabla_{\beta_*} \left( \theta_j - \beta_*^T\textbf{x} \right) \\
+    \left( \frac{1 - \gamma_j}{\gamma_j} \right) \left( \frac{(1 - \gamma_j) - (-\gamma_j)}{(1 - \gamma_j)^2} \right) \nabla_{\beta_*}\gamma_j &= \textbf{x} \\
+    \nabla_{\beta_*}\gamma_j &= \gamma_j(1 - \gamma_j)\textbf{x}
+\end{align}
+
+We derive $f'(t)$ as:
+\begin{align}
+    f(t) &= ln(1+e^t) \\
+    f'(t) &= \frac{e^t}{1+e^t}
+\end{align}
+
+Note we can derive the following partial derivatives:
+\begin{align}
+    \frac{\partial \phi_j}{\partial \gamma_j} &= \frac{\gamma_{j+1}}{\gamma_j(\gamma_{j+1} - \gamma_j)} \\
+    \frac{\partial \phi_j}{\partial \gamma_{j+1}} &= \frac{-1}{\gamma_{j+1} - \gamma_j}
+\end{align}
+
+Using the above we can calculate $\nabla_{\beta_*} \phi_j$ through exact differentials as follows:
+\begin{align}
+    \nabla_{\beta_*}(\phi_j) &= \frac{\partial \phi_j}{\partial \gamma_j}\nabla_{\beta_*}(\gamma_j) + \frac{\partial \phi_j}{\partial \gamma_{j+1}}\nabla_{\beta_*}(\gamma_{j+1}) \\
+    &= \gamma_{j+1}\textbf{x}
+\end{align}
 
 \bibliographystyle{abbrv}
 % \bibliography{references}  % need to put bibtex references in references.bib 
