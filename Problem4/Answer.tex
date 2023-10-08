@@ -5,6 +5,7 @@
 \geometry{a4paper} 
 \usepackage[utf8]{inputenc}
 \usepackage{textcomp}
+\usepackage{algorithm2e}
 \usepackage{graphicx} 
 \usepackage{amsmath,amssymb}  
 \usepackage{bm}  
@@ -14,7 +15,9 @@
 \usepackage{pdfsync}  
 \usepackage{fancyhdr}
 \usepackage{enumitem}
+\usepackage{color}
 \pagestyle{fancy}
+\RestyleAlgo{ruled}
 
 \title{Logistic Regression and Newton-Raphson}
 \author{
@@ -111,7 +114,36 @@ where $H$ is the Hessian. Using \eqref{eq:11} and \eqref{eq:19}, we get the foll
     \textbf{w}^{new} &= \textbf{w}^{old} - (\Phi^T R \Phi)^{-1} \Phi^T  (\textbf{y} - \textbf{t}) 
 \end{align}
 
-\textbf{Write the algorithm here @Rishit}. We should also probably clarify that our gradient is transposed because of the numerator layout convention
+\begin{algorithm}[!h]
+    \CommentSty{\color{blue}}
+    \caption{Newton-Raphson Update Algorithm}
+    \label{alg:one}
+    \KwData{
+        $\mathbf{\Phi}$ : Design Matrix \newline
+        $\mathbf{t}$ : Output Vector \newline
+        $\epsilon > 0$ : Terminator
+    }
+    \KwResult{
+        $\mathbf{w}$ which maximizes log-likelihood.
+    }
+    \vskip 0.5cm
+    $\mathbf{w} \gets \mathbf{w_0}$ \tcp*{$w_0$ is preferably close to the root}
+    $\mathbf{y} = (\sigma(w^T\phi_1), \sigma(w^T\phi_2), ..., \sigma(w^T\phi_n))^T$ \tcp*{$\sigma$ refers to the sigmoid function}
+    $grad \gets (\mathbf{y} - \mathbf{t})^T\mathbf{\Phi}$\;
+    \While{$|grad| \geq \epsilon$}{
+        $R \gets diag(y_1(1 - y_1), ..., y_2(1 - y_2))$\;
+        $\mathbf{H} \gets \mathbf{\Phi}^TR\mathbf{\Phi}$\;
+        $\mathbf{w} \gets \mathbf{w} - \mathbf{H}^{-1}\mathbf{\Phi}^T(\mathbf{y} - \mathbf{t})$\;
+        $\mathbf{y} = (\sigma(w^T\phi_1), \sigma(w^T\phi_2), ..., \sigma(w^T\phi_n))^T$\;
+        $grad \gets (\mathbf{y} - \mathbf{t})^T\mathbf{\Phi}$\;
+    }
+    return $\mathbf{w}$
+\end{algorithm}
+
+%\textbf{Write the algorithm here @Rishit}. We should also probably clarify that our gradient is transposed because of the numerator layout convention
+Please refer to Algorithm \ref{alg:one} for the algorithm to determine $\mathbf{x}$ to maximize likelihood.
+
+
 
 \section{Relation to Weighted Least Squares}
 The update equation for the Newton-Raphson method can be rewritten as:
