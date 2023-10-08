@@ -209,9 +209,9 @@ Consider the gradient of $l(\textbf{x})$ with respect to $\beta_*$ which can be 
 
 Assume we have $P$ input points \textbf{$x_p$.} Now, our gradient of our final log-likelihood function would be:
 \begin{align}
-    \nabla_{\beta_*}l &= \sum_{p=1}^P\nabla_{\beta_*}l(\textbf{$x_p$}) \\
-    &= \sum_{p=1}^P N_p \left( \sum_{i=2}^k \left( \gamma_{p,i} Z_{p,i-1} - \gamma_{p,i-1} Z_{p,i} \right) \textbf{$x_p$} \right) \\
-    &= \sum_{i=2}^k \left( \gamma_{i} \mathds{E}(Z_{i-1}) - \gamma_{i-1} \mathds{E}(Z_i) \right) (????????)
+    \nabla_{\beta_*}l &= \sum_{p=1}^P\nabla_{\beta_*}l(\textbf{$x_p$}) 
+    % &= \sum_{p=1}^P N_p \left( \sum_{i=2}^k \left( \gamma_{p,i} Z_{p,i-1} - \gamma_{p,i-1} Z_{p,i} \right) \textbf{$x_p$} \right) \\
+    % &= \sum_{i=2}^k \left( \gamma_{i} \mathds{E}(Z_{i-1}) - \gamma_{i-1} \mathds{E}(Z_i) \right) (????????)
 \end{align}
 
 \subsection{Other Derivations}
